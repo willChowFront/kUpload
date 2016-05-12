@@ -10,11 +10,10 @@
 * -----------------------------------------------------*/
 function kUpload (config) {
 	var
-		uploadfiles = [],//待上传文件
+		uploadFiles = [],//待上传文件
 		uploadAreaId = config.uploadAreaId ? config.uploadAreaId : -1,
 		progessEleId = config.progessEleId ? config.progessEleId : -1,
-		acceptFormat = config.acceptFormat ? config.acceptFormat : -1,
-		dropId = config.dropId ? config.dropId : -1;
+		acceptFormat = config.acceptFormat ? config.acceptFormat : [];
 	/**
 	 * [on 为dom元素绑定事件处理程序，事件代理]
 	 * @param  {[string]} 		eleId        	[元素Id]
@@ -51,36 +50,90 @@ function kUpload (config) {
 	 */
 	function dropHandleEvent(event){
 		preventDefault(event);
-		var
-			liEle,spanEle,strongEle,labelEle,emEle,
-			isValid,suffix,strTemp,nameTextNode,fileSize,sizeTextNode,
-			ulEle = document.createElement('ul'),
-			files = event.dataTransfer.files,
+		var 
+			files = event.dataTransfer.files;
+		createFileHtml(files);
+	}
+
+	/**
+	 * [createFileHtml 生成要上传的文件在页面中的html表示]
+	 * @param  {[type]} event [description]
+	 */
+	function createFileHtml(files){
+		 var
+			liEle, spanEle, strongEle, aEle, buttonEle,ulEle,
+			isRepeat, isValid, suffix, strTemp, nameTextNode, fileSize, sizeTextNode,
+			uploadArea = document.getElementById(uploadAreaId),
+			toUpload = document.getElementById('J_toUpload'),
 			i = 0,
 			len = files.length;
+		if(document.getElementById('J_upLoadList')){
+			ulEle = document.getElementById('J_upLoadList');
+		}else{
+			ulEle = document.createElement('ul');
+			ulEle.id = 'J_upLoadList';
+		}
+		
 		while(i<len){
 			strTemp = files[i].name.split('.');
 			suffix = strTemp[strTemp.length-1];
-			isValid = acceptFormat.some(function(item,index,array){
-				return suffix.toLowerCase() === item.toLowerCase();
-			});
+			if(acceptFormat.length == 0){
+				isValid = true;
+			}else{
+				isValid = acceptFormat.some(function(item,index,array){
+					return suffix.toLowerCase() === item.toLowerCase();
+				});
+			}
 			if(!isValid){
 				alert("文件格式不支持，支持的格式为 "+acceptFormat.join(',')+"请重新选择上传文件");
 				break;
+			}
+			if(uploadFiles.length != 0){
+				isRepeat = uploadFiles.some( function(element, index) {
+							return element.name === files[i].name
+						  });
+				if(isRepeat){
+					break;
+				}
 			}
 			
 			liEle = document.createElement('li');
 			spanEle = document.createElement('span');
 			strongEle = document.createElement('strong');
-			labelEle = document.createElement('label');
-			emEle = document.createElement('em');
+			aEle = document.createElement('a');
 			
-			fileSize = files.size / (1024*1024);
+			fileSize = parseInt(files[i].size , 10) / (1024*1024);
+			sizeTextNode = document.createTextNode(fileSize.toFixed(2)+'M');
+			spanEle.appendChild(sizeTextNode);
+
 			nameTextNode = document.createTextNode("'"+files[i].name+"'");
 			strongEle.appendChild(nameTextNode);
-			uploadfiles.push(files[i]);
+
+			aEle.appendChild(document.createTextNode("delete"));
+			aEle.setAttribute('index', i);
+			aEle.href = 'javascript:;';
+
+			liEle.appendChild(spanEle);
+			liEle.appendChild(strongEle);
+			liEle.appendChild(aEle);
+
+			ulEle.appendChild(liEle);
+
+			uploadFiles.push(files[i]);
 			i++;
 		}
+
+		if(!toUpload){
+			buttonEle = document.createElement('button');
+			buttonEle.type = 'button';
+			buttonEle.appendChild(document.createTextNode('upload'));
+			buttonEle.id = 'J_toUpload';
+			uploadArea.appendChild(buttonEle);
+			toUpload = document.getElementById('J_toUpload');
+		}
+
+		uploadArea.insertBefore(ulEle, toUpload);
+		
 	}
 	/**
 	 * [ajaxUpload 通过ajax上传文件]
@@ -115,14 +168,36 @@ function kUpload (config) {
 	 * [addHandler 添加事件处理器]
 	 */
 	function addHandler(){
-		on(dropId, "dragover" , function(event){
+		var 
+			tempArray, indexOfaEle, target;
+		on(uploadAreaId, "dragover" , function(event){
 			preventDefault(event);
 		});
 
-		on(dropId, "dragenter", function(event){
+		on(uploadAreaId, "dragenter", function(event){
 			preventDefault(event);
 		});
 
-		on(dropId, "drop", dropHandleEvent);
+		on(uploadAreaId, "drop", dropHandleEvent);
+
+		on(uploadAreaId, 'click', function(event) {
+			target = event.target ? event.target : event.srcElement;
+			tempArray = [];
+			if(target.nodeName.toLowerCase() === 'a'){
+				indexOfaEle = target.getAttribute('index');
+				uploadFiles.forEach( function(element, index) {
+					if(indexOfaEle != index){
+						tempArray.push(element);
+					}
+				});
+				console.log(tempArray);
+				uploadFiles = tempArray;
+				target.parentNode.parentNode.removeChild(target.parentNode);
+			}
+		})
 	}
+
+	(function init(){
+		addHandler();
+	})();
 }

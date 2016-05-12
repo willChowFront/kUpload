@@ -3,24 +3,27 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="./reset.css">
 	<script type="text/javascript" src="kUpload.js" charset="UTF-8"></script>
+	<style type="text/css">
+		div {
+			width: 500px;
+			height: 500px;
+			border: 1px solid black;
+		}
+	</style>
 </head>
 <body>
 	<div id="J_uploadArea"></div>
-	<form>
+	<!-- <form>
 		<input type="file" id="J_upload" multiple/>
 		<button type="button" >上传</button>
-	</form>
+	</form> -->
 	<script type="text/javascript">
-		var
-			upload = document.getElementById("J_upload");
-		upload.addEventListener('change',function(ev){
-			console.log(upload.files);
-		},false);
-		// upload.onclick = function(ev){
-		// 	console.log(ev.target);
-		// 	console.log(this);
-		// }
+		kUpload({
+			uploadAreaId : "J_uploadArea",
+			acceptFormat : ["jpg","zip"]
+		})
 	</script>	
 </body>
 </html>
