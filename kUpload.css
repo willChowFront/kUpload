@@ -1,0 +1,76 @@
+/*-----------------------------------------------------
+* @Description:     上传组件默认样式
+* @Version:         1.0.0
+* @author:          willChow(zhaokaikangwill@foxmail.com)
+* @date             2016.05.13
+* ==NOTES:=============================================
+* v1.0.0(2016.05.13):
+     初始生成
+* -----------------------------------------------------*/
+.k-upload-list {
+	width: 100%;
+}
+
+.k-upload-list li{
+	height: 40px;
+	line-height: 40px;
+	border-bottom: 1px solid #bababa;
+}
+
+.k-upload-list li strong{
+	float: left;
+	height: 40px;
+	width: 40%;
+	text-indent: 20px;
+	font-size: 16px;
+	text-align: center;
+	background: url("./file.png") no-repeat 0 10px/20px 20px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.k-upload-list li span {
+	float: left;
+	width: 40%;
+	height: 40px;
+	font-size: 16px;
+	text-align: center;
+	border-left: 1px solid #bababa;
+	border-right: 1px solid #bababa;
+}
+
+.k-upload-list li a {
+	font-size: 16px;
+	text-align: center;
+}
+
+.k-file-input {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+}
+
+.k-file-input input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.k-file-input:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}

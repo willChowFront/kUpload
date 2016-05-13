@@ -13,6 +13,7 @@ function kUpload (config) {
 		uploadFiles = [],//待上传文件
 		uploadAreaId = config.uploadAreaId ? config.uploadAreaId : -1,
 		progessEleId = config.progessEleId ? config.progessEleId : -1,
+		cssUrl = config.cssUrl ? config.cssUrl : -1,
 		acceptFormat = config.acceptFormat ? config.acceptFormat : [];
 	/**
 	 * [on 为dom元素绑定事件处理程序，事件代理]
@@ -52,7 +53,11 @@ function kUpload (config) {
 		preventDefault(event);
 		var 
 			files = event.dataTransfer.files;
-		createFileHtml(files);
+		if(files.length == 0){
+			alert("抱歉,暂不支持文件夹上传");
+		}else{
+			createFileHtml(files);
+		}
 	}
 
 	/**
@@ -62,7 +67,7 @@ function kUpload (config) {
 	function createFileHtml(files){
 		 var
 			liEle, spanEle, strongEle, aEle, buttonEle,ulEle,
-			isRepeat, isValid, suffix, strTemp, nameTextNode, fileSize, sizeTextNode,
+			isRepeat, isValid, suffix, strTemp, fileName, nameTextNode, fileSize, sizeTextNode,
 			uploadArea = document.getElementById(uploadAreaId),
 			toUpload = document.getElementById('J_toUpload'),
 			i = 0,
@@ -72,6 +77,7 @@ function kUpload (config) {
 		}else{
 			ulEle = document.createElement('ul');
 			ulEle.id = 'J_upLoadList';
+			ulEle.className = 'k-upload-list';
 		}
 		
 		while(i<len){
@@ -85,15 +91,17 @@ function kUpload (config) {
 				});
 			}
 			if(!isValid){
-				alert("文件格式不支持，支持的格式为 "+acceptFormat.join(',')+"请重新选择上传文件");
-				break;
+				alert("抱歉暂不支持"+suffix+"格式，支持的格式为 "+acceptFormat.join(',')+"请重新选择上传文件");
+				i++;
+				continue;
 			}
 			if(uploadFiles.length != 0){
 				isRepeat = uploadFiles.some( function(element, index) {
-							return element.name === files[i].name
+							return element.name === files[i].name;
 						  });
 				if(isRepeat){
-					break;
+					i++;
+					continue;
 				}
 			}
 			
@@ -102,19 +110,23 @@ function kUpload (config) {
 			strongEle = document.createElement('strong');
 			aEle = document.createElement('a');
 			
+			fileName = files[i].name;
+			if(fileName.length >　20){
+				fileName = "..."+fileName.substring(fileName.length-20, fileName.length);
+			}
+			nameTextNode = document.createTextNode(fileName);
+			strongEle.appendChild(nameTextNode);
+
 			fileSize = parseInt(files[i].size , 10) / (1024*1024);
 			sizeTextNode = document.createTextNode(fileSize.toFixed(2)+'M');
 			spanEle.appendChild(sizeTextNode);
-
-			nameTextNode = document.createTextNode("'"+files[i].name+"'");
-			strongEle.appendChild(nameTextNode);
 
 			aEle.appendChild(document.createTextNode("delete"));
 			aEle.setAttribute('index', i);
 			aEle.href = 'javascript:;';
 
-			liEle.appendChild(spanEle);
 			liEle.appendChild(strongEle);
+			liEle.appendChild(spanEle);
 			liEle.appendChild(aEle);
 
 			ulEle.appendChild(liEle);
@@ -132,8 +144,30 @@ function kUpload (config) {
 			toUpload = document.getElementById('J_toUpload');
 		}
 
-		uploadArea.insertBefore(ulEle, toUpload);
+		uploadArea.insertBefore(ulEle, toUpload);	
+	}
+	/**
+	 * [createInput 生成file表单元素]
+	 */
+	function createInput(){
+		var
+			uploadArea = document.getElementById(uploadAreaId),
+			aEle = document.createElement('a'),
+			inputEle = document.createElement('input');
 		
+		if(uploadArea.style.position == 'static' || uploadArea.style.position == ''){
+			uploadArea.style.position = 'relative';
+		}
+		
+		inputEle.type = 'file';
+		inputEle.multiple = true;
+		inputEle.id = 'J_fileInput';
+		
+		aEle.className = 'k-file-input';
+		aEle.appendChild(document.createTextNode('select'));
+		aEle.appendChild(inputEle);
+		
+		uploadArea.appendChild(aEle);
 	}
 	/**
 	 * [ajaxUpload 通过ajax上传文件]
@@ -169,7 +203,7 @@ function kUpload (config) {
 	 */
 	function addHandler(){
 		var 
-			tempArray, indexOfaEle, target;
+			tempArray, indexOfaEle, target, files;
 		on(uploadAreaId, "dragover" , function(event){
 			preventDefault(event);
 		});
@@ -194,10 +228,31 @@ function kUpload (config) {
 				uploadFiles = tempArray;
 				target.parentNode.parentNode.removeChild(target.parentNode);
 			}
-		})
+		});
+
+		on('J_fileInput', 'change', function(event){
+			files = document.getElementById('J_fileInput').files;
+			createFileHtml(files);
+		});
+	}
+	/**
+	 * [getCss 获取样式表]
+	 * @param  {[string]} url [样式地址]
+	 * @return {[type]}     [description]
+	 */
+	function getCss(url){
+		var
+			link = document.createElement('link'),
+			head = document.getElementsByTagName('head')[0];
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = url;
+		head.appendChild(link);
 	}
 
 	(function init(){
+		createInput();
 		addHandler();
+		getCss(cssUrl);
 	})();
 }
