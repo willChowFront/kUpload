@@ -7,24 +7,56 @@
 * v1.0.0(2016.05.13):
      初始生成
 * -----------------------------------------------------*/
-.k-upload-list {
+.k-upload-area {
+	padding-bottom: 160px;
+}
+
+.k-upload-header{
 	width: 100%;
+	height: 50px;
+	background-color: #1695f3;
+}
+
+.k-upload-body {
+	position: relative;
+	width: 90%;
+	height: 140px;
+	padding-top: 140px;
+	padding-bottom: 20px;
+	margin: 20px auto;
+	border: 5px dashed #e7e7e7; 
+	background: url("./img/k-addfile.png") no-repeat center 20%;
+}
+
+.k-upload-body p {
+	width: 80%;
+	margin: 0 auto;
+	text-align: center;
+	color: #999999;
+	font-size: 20px; 
+}
+
+.k-upload-list {
+	width: 92%;
+	margin: 20px auto;
 }
 
 .k-upload-list li{
+	position: relative;
 	height: 40px;
-	line-height: 40px;
-	border-bottom: 1px solid #bababa;
+	line-height: 40px; 
+	margin-bottom: 5px;
 }
 
 .k-upload-list li strong{
 	float: left;
 	height: 40px;
-	width: 40%;
-	text-indent: 20px;
-	font-size: 16px;
-	text-align: center;
-	background: url("./file.png") no-repeat 0 10px/20px 20px;
+	width: 38%;
+	text-indent: 25px;
+	font-size: 20px;
+	color: #001;
+	border-right: 1px solid #bababa;
+	background: url("./img/k-icon.png") no-repeat 0 14px;
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -34,43 +66,94 @@
 	float: left;
 	width: 40%;
 	height: 40px;
-	font-size: 16px;
-	text-align: center;
-	border-left: 1px solid #bababa;
 	border-right: 1px solid #bababa;
+	border-top: 1px solid #bababa;
+	border-bottom: 1px solid #bababa;
+	font-size: 20px;
+	text-align: center;
 }
 
 .k-upload-list li a {
+	display: inline-block;
+	text-indent: -20000px;
+	width: 21%;
 	font-size: 16px;
+	text-align: center;
+	color: #1695f3;
+	background: url("./img/k-icon.png") no-repeat right -33px;
+}
+
+.k-file-button {
+	position: absolute;
+	left: 20%;
+	bottom: 42px;
+	width: 60%;
+	height: 40px;
+    background-color: #70bfea;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    color: #ffebfa;
+    text-align: center;
+    line-height: 40px;
+}
+
+.k-file-input{
+	position: absolute;
+    left: 20%;
+	bottom: 42px;
+	width: 60%;
+	height: 40px;
+    opacity: 0;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.k-upload-button{
+	position: absolute;
+	left: 20%;
+	bottom:80px;
+	width: 60%;
+	height: 40px;
+	background-color: #70bfea;
+	border: 1px solid #99D3F5;
+    border-radius: 4px;
+    cursor: pointer;
+	color: #ffebfa;
+	font-size: 22px;
 	text-align: center;
 }
 
-.k-file-input {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-    display: inline-block;
-    background: #D0EEFF;
-    border: 1px solid #99D3F5;
-    border-radius: 4px;
-    padding: 4px 12px;
-    overflow: hidden;
-    color: #1E88C7;
-    text-decoration: none;
-    text-indent: 0;
-    line-height: 20px;
+.k-upload-button:hover {
+    background-color: #1695f3;
+    color: #ffebfa;
 }
 
-.k-file-input input {
-    position: absolute;
-    font-size: 100px;
-    right: 0;
-    top: 0;
-    opacity: 0;
+.k-cancel-button {
+	position: absolute;
+	left: 20%;
+	bottom:20px;
+	width: 60%;
+	height: 40px;
+	background-color: #70bfea;
+	border: 1px solid #99D3F5;
+    border-radius: 4px;
+    cursor: pointer;
+	color: #ffebfa;
+	font-size: 22px;
+	text-align: center;
 }
-.k-file-input:hover {
-    background: #AADFFD;
-    border-color: #78C3F3;
-    color: #004974;
-    text-decoration: none;
+
+.k-cancel-button:hover{
+	background-color: #1695f3;
+    color: #ffebfa;
+}
+
+.k-progress {
+	position: absolute;
+	left: 38%;
+	top: 0;
+	height: 41px;
+	width: 20%;
+	color: #fff;
+	background-color: #1695f3;
 }

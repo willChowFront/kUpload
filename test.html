@@ -6,25 +6,48 @@
 	<link rel="stylesheet" type="text/css" href="./reset.css">
 	<script type="text/javascript" src="kUpload.js" charset="UTF-8"></script>
 	<style type="text/css">
-		div {
-			width: 500px;
-			height: 500px;
-			border: 1px solid black;
-		}
+	    .content{
+	    	width: 700px;
+	    	border: 2px solid #b3b3b3;
+	    	margin: 100px auto;	
+	    	height: auto;
+	    	min-height: 600px;
+	    }
+		
+		/*.k-header span{
+			color: #ffebfa;
+			font-size: 22px; 
+			line-height: 50px;
+			overflow: hidden;
+		}*/
 	</style>
 </head>
 <body>
-	<div id="J_uploadArea"></div>
+  <div class="content">
+	
+	<div id="J_uploadArea">
+	</div>
+	<!-- <ul id="J_uploadArea2"></ul> -->
 	<!-- <form>
 		<input type="file" id="J_upload" multiple/>
 		<button type="button" >上传</button>
 	</form> -->
+  </div>
 	<script type="text/javascript">
 		kUpload({
 			uploadAreaId : "J_uploadArea",
 			acceptFormat : ["jpg","zip","pdf"],
+			cssUrl : './kUpload.css',
+			uploadUrl : './upload',
+			maxFileSize　: '1000',
+			selectNums : '3',
+			fileParaName : 'fileData'
+		});
+		/*kUpload({
+			uploadAreaId : "J_uploadArea2",
+			acceptFormat : ["jpg","zip","pdf"],
 			cssUrl : './kUpload.css'
-		})
+		})*/
 	</script>	
 </body>
 </html>

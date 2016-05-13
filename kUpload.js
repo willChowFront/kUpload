@@ -10,10 +10,19 @@
 * -----------------------------------------------------*/
 function kUpload (config) {
 	var
+		dropId,//可拖放区域的id
+		uploadListId,//上传列表id
+		toUploadId,//上传按钮id
+		fileInputId,//文件表单元素id
+		cancelUploadId,//取消上传按钮id
 		uploadFiles = [],//待上传文件
+		fileParaName = config.fileParaName ? config.fileParaName : -1,//后台接收文件上传时的参数名
 		uploadAreaId = config.uploadAreaId ? config.uploadAreaId : -1,
 		progessEleId = config.progessEleId ? config.progessEleId : -1,
 		cssUrl = config.cssUrl ? config.cssUrl : -1,
+		uploadUrl = config.uploadUrl ? config.uploadUrl : -1,
+		selectNums = config.selectNums ? config.selectNums : 200,
+		maxFileSize = config.maxFileSize ? config.maxFileSize : 1024,
 		acceptFormat = config.acceptFormat ? config.acceptFormat : [];
 	/**
 	 * [on 为dom元素绑定事件处理程序，事件代理]
@@ -55,6 +64,8 @@ function kUpload (config) {
 			files = event.dataTransfer.files;
 		if(files.length == 0){
 			alert("抱歉,暂不支持文件夹上传");
+		}else if(files.length > selectNums){
+			alert("抱歉,单此可选"+selectNums+"份文件");
 		}else{
 			createFileHtml(files);
 		}
@@ -72,6 +83,7 @@ function kUpload (config) {
 			toUpload = document.getElementById('J_toUpload'),
 			i = 0,
 			len = files.length;
+
 		if(document.getElementById('J_upLoadList')){
 			ulEle = document.getElementById('J_upLoadList');
 		}else{
@@ -83,6 +95,13 @@ function kUpload (config) {
 		while(i<len){
 			strTemp = files[i].name.split('.');
 			suffix = strTemp[strTemp.length-1];
+			fileName = files[i].name;
+			fileSize = parseInt(files[i].size , 10) / (1024*1024);
+			if(fileSize >　maxFileSize){
+				alert(fileName+'的文件大小为'+fileSize.toFixed(2)+'M大于文件上传的最大限制'+maxFileSize+'M');
+				i++;
+				continue;
+			}
 			if(acceptFormat.length == 0){
 				isValid = true;
 			}else{
@@ -110,18 +129,16 @@ function kUpload (config) {
 			strongEle = document.createElement('strong');
 			aEle = document.createElement('a');
 			
-			fileName = files[i].name;
 			if(fileName.length >　20){
 				fileName = "..."+fileName.substring(fileName.length-20, fileName.length);
 			}
 			nameTextNode = document.createTextNode(fileName);
 			strongEle.appendChild(nameTextNode);
 
-			fileSize = parseInt(files[i].size , 10) / (1024*1024);
 			sizeTextNode = document.createTextNode(fileSize.toFixed(2)+'M');
 			spanEle.appendChild(sizeTextNode);
 
-			aEle.appendChild(document.createTextNode("delete"));
+			aEle.appendChild(document.createTextNode("删除"));
 			aEle.setAttribute('index', i);
 			aEle.href = 'javascript:;';
 
@@ -134,67 +151,110 @@ function kUpload (config) {
 			uploadFiles.push(files[i]);
 			i++;
 		}
-
 		if(!toUpload){
-			buttonEle = document.createElement('button');
-			buttonEle.type = 'button';
-			buttonEle.appendChild(document.createTextNode('upload'));
-			buttonEle.id = 'J_toUpload';
-			uploadArea.appendChild(buttonEle);
-			toUpload = document.getElementById('J_toUpload');
+			uploadArea.insertBefore(ulEle, toUpload);
 		}
-
-		uploadArea.insertBefore(ulEle, toUpload);	
 	}
 	/**
-	 * [createInput 生成file表单元素]
+	 * [createStatic 生成静态Html元素]
 	 */
-	function createInput(){
+	function createStatic(){
 		var
+			divEle, pEle,ulEle,
 			uploadArea = document.getElementById(uploadAreaId),
-			aEle = document.createElement('a'),
+			buttonEle = document.createElement('button'),
 			inputEle = document.createElement('input');
 		
 		if(uploadArea.style.position == 'static' || uploadArea.style.position == ''){
 			uploadArea.style.position = 'relative';
 		}
-		
+
+		if(uploadArea.className.search('k-upload-area') == -1){
+			uploadArea.className = uploadArea.className + ' k-upload-area';
+		}
+
+		divEle = document.createElement('div'),
+		divEle.className = 'k-upload-header';
+		uploadArea.appendChild(divEle);
+
+		divEle = document.createElement('div'),
+		divEle.className = 'k-upload-body';
+		dropId  = 'J_drop';
+		divEle.id = 'J_drop';
+		pEle = document.createElement('p');
+		pEle.appendChild(document.createTextNode('可将文件拖到这里，单次最多可选'+selectNums+'份'));
+		divEle.appendChild(pEle);
+		pEle = document.createElement('p');
+		pEle.appendChild(document.createTextNode('(单个文件最大'+maxFileSize+'MB，暂不支持拖曳文件夹)'));
+		divEle.appendChild(pEle);
+
 		inputEle.type = 'file';
 		inputEle.multiple = true;
 		inputEle.id = 'J_fileInput';
+		fileInputId = 'J_fileInput';
+		inputEle.className = 'k-file-input';
 		
-		aEle.className = 'k-file-input';
-		aEle.appendChild(document.createTextNode('select'));
-		aEle.appendChild(inputEle);
+		buttonEle.className = 'k-file-button';
+		buttonEle.href = 'javascript:;';
+		buttonEle.appendChild(document.createTextNode('点此选择文件'));
+		divEle.appendChild(inputEle);
+		divEle.appendChild(buttonEle);
+
+		ulEle = document.createElement('ul');
+		ulEle.id = 'J_upLoadList';
+		uploadListId = 'J_upLoadList';
+		ulEle.className = 'k-upload-list';
+
+		buttonEle = document.createElement('button');
+		buttonEle.type = 'button';
+		buttonEle.appendChild(document.createTextNode('上传文件'));
+		buttonEle.id = 'J_toUpload';
+		toUploadId = 'J_toUpload';
+		buttonEle.className = 'k-upload-button';
+		uploadArea.appendChild(buttonEle);
+
+		buttonEle = document.createElement('button');
+		buttonEle.type = 'button';
+		buttonEle.appendChild(document.createTextNode('取消上传'));
+		buttonEle.id = 'J_cancel';
+		cancelUploadId = 'J_cancel';
+		buttonEle.className = 'k-cancel-button';
+		uploadArea.appendChild(buttonEle);
 		
-		uploadArea.appendChild(aEle);
+		uploadArea.appendChild(divEle);
+		uploadArea.appendChild(ulEle);
 	}
 	/**
 	 * [ajaxUpload 通过ajax上传文件]
 	 * @param  {[string]} url  [上传地址]
 	 * @param  {[object]} file [文件对象]
-	 * @param  {[string]} progessEleId [进度条元素id]
+	 * @param  {[number]} index [第几个元素正在上传]
 	 * @return {[type]}      [description]
 	 */
-	function ajaxUpload(url, file, progessEleId){
+	function ajaxUpload(url, file, index){
 		var
-			jsonObject,
-			percent,
-			progessEle = document.getElementById(progessEleId),
+			jsonObject,percent,
+			emEle = document.createElement('em'),
+			formData = new FormData();
+			uploadList = document.getElementById(uploadListId).childNodes,
 			xhr = new XMLHttpRequest();
+		emEle.className = 'k-progress';
+		uploadList[index].appendChild(emEle);
+		formData.append(fileParaName, file);
 		xhr.open('post',url,false);
-		xhr.send(file);
+		xhr.send(formData);
 		xhr.onload = function(event){
 			if((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304){
 				jsonObject = JSON.parse(xhr.responseText);
 				if(jsonObject.code === 0){
-
+					emEle.appendChild(document.createTextNode('上传成功'));
 				}
 			}
 		};
 		xhr.upload.onprogress = function(event){
 			if(event.lengthComputable){
-				percent = Math.floor(event.loaded/event.total)*100 + '%';	
+				percent = Math.floor(event.loaded/event.total)*100;
+				emEle.style.width = percent + 'px';	
 			}
 		};
 	}
@@ -204,17 +264,17 @@ function kUpload (config) {
 	function addHandler(){
 		var 
 			tempArray, indexOfaEle, target, files;
-		on(uploadAreaId, "dragover" , function(event){
+		on(dropId, "dragover" , function(event){
 			preventDefault(event);
 		});
 
-		on(uploadAreaId, "dragenter", function(event){
+		on(dropId, "dragenter", function(event){
 			preventDefault(event);
 		});
 
-		on(uploadAreaId, "drop", dropHandleEvent);
+		on(dropId, "drop", dropHandleEvent);
 
-		on(uploadAreaId, 'click', function(event) {
+		on(uploadListId, 'click', function(event) {
 			target = event.target ? event.target : event.srcElement;
 			tempArray = [];
 			if(target.nodeName.toLowerCase() === 'a'){
@@ -230,9 +290,19 @@ function kUpload (config) {
 			}
 		});
 
-		on('J_fileInput', 'change', function(event){
+		on(fileInputId, 'change', function(event){
 			files = document.getElementById('J_fileInput').files;
-			createFileHtml(files);
+			if(files.length > selectNums){
+				alert("抱歉,单此可选"+selectNums+"份文件");
+			}else{
+				createFileHtml(files);
+			}
+		});
+
+		on(toUploadId, 'click', function(ev){
+			uploadFiles.forEach(function(item,index){
+				ajaxUpload(uploadUrl,item,index);
+			});
 		});
 	}
 	/**
@@ -251,7 +321,7 @@ function kUpload (config) {
 	}
 
 	(function init(){
-		createInput();
+		createStatic();
 		addHandler();
 		getCss(cssUrl);
 	})();
