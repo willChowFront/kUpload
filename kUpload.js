@@ -16,14 +16,31 @@ function kUpload (config) {
 		fileInputId,//文件表单元素id
 		cancelUploadId,//取消上传按钮id
 		uploadFiles = [],//待上传文件
+		currentXHR ,//当前xhr对象
+		isCancel = false,//是否取消上传
 		fileParaName = config.fileParaName ? config.fileParaName : -1,//后台接收文件上传时的参数名
-		uploadAreaId = config.uploadAreaId ? config.uploadAreaId : -1,
-		progessEleId = config.progessEleId ? config.progessEleId : -1,
-		cssUrl = config.cssUrl ? config.cssUrl : -1,
-		uploadUrl = config.uploadUrl ? config.uploadUrl : -1,
-		selectNums = config.selectNums ? config.selectNums : 200,
-		maxFileSize = config.maxFileSize ? config.maxFileSize : 1024,
-		acceptFormat = config.acceptFormat ? config.acceptFormat : [];
+		uploadAreaId = config.uploadAreaId ? config.uploadAreaId : -1,//包含上传组件的DOM元素id
+		cssUrl = config.cssUrl ? config.cssUrl : -1,//组件样式的url
+		uploadUrl = config.uploadUrl ? config.uploadUrl : -1,//接收上传元素的url
+		selectNums = config.selectNums ? config.selectNums : 200,//单次可选择的元素
+		maxFileSize = config.maxFileSize ? config.maxFileSize : 1024,//允许上传元素大小的最大值
+		acceptFormat = config.acceptFormat ? config.acceptFormat : [];//允许上传的格式
+	if(!fileParaName){
+		console.log('未传入后台接收文件的参数!');
+		return -1;
+	}
+	if(!uploadAreaId){
+		console.log('未传入包含上传组件的DOM元素id！');
+		return -1;
+	}
+	if(!cssUrl){
+		console.log('未传入组件样式的url！');
+		return -1;
+	}
+	if(!uploadUrl){
+		console.log('未传入接收上传元素的url！');
+		return -1;
+	}
 	/**
 	 * [on 为dom元素绑定事件处理程序，事件代理]
 	 * @param  {[string]} 		eleId        	[元素Id]
@@ -181,11 +198,17 @@ function kUpload (config) {
 		divEle.className = 'k-upload-body';
 		dropId  = 'J_drop';
 		divEle.id = 'J_drop';
+
+		if(acceptFormat.length != 0){
+			pEle = document.createElement('p');
+			pEle.appendChild(document.createTextNode('允许上传的文件格式为'+acceptFormat.join(',')));
+			divEle.appendChild(pEle);
+		}
 		pEle = document.createElement('p');
-		pEle.appendChild(document.createTextNode('可将文件拖到这里，单次最多可选'+selectNums+'份'));
+		pEle.appendChild(document.createTextNode('可将文件拖到这里，暂不支持拖曳文件夹'));
 		divEle.appendChild(pEle);
 		pEle = document.createElement('p');
-		pEle.appendChild(document.createTextNode('(单个文件最大'+maxFileSize+'MB，暂不支持拖曳文件夹)'));
+		pEle.appendChild(document.createTextNode('单个文件最大'+maxFileSize+'MB，单次最多可选'+selectNums+'份'));
 		divEle.appendChild(pEle);
 
 		inputEle.type = 'file';
@@ -193,9 +216,7 @@ function kUpload (config) {
 		inputEle.id = 'J_fileInput';
 		fileInputId = 'J_fileInput';
 		inputEle.className = 'k-file-input';
-		
 		buttonEle.className = 'k-file-button';
-		buttonEle.href = 'javascript:;';
 		buttonEle.appendChild(document.createTextNode('点此选择文件'));
 		divEle.appendChild(inputEle);
 		divEle.appendChild(buttonEle);
@@ -241,8 +262,9 @@ function kUpload (config) {
 		emEle.className = 'k-progress';
 		uploadList[index].appendChild(emEle);
 		formData.append(fileParaName, file);
-		xhr.open('post',url,false);
+		xhr.open('post',url,true);
 		xhr.send(formData);
+		xhrList.push(xhr);
 		xhr.onload = function(event){
 			if((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304){
 				jsonObject = JSON.parse(xhr.responseText);
@@ -301,8 +323,15 @@ function kUpload (config) {
 
 		on(toUploadId, 'click', function(ev){
 			uploadFiles.forEach(function(item,index){
-				ajaxUpload(uploadUrl,item,index);
+				if(!isCancel){
+					ajaxUpload(uploadUrl,item,index);
+				}
 			});
+		});
+
+		on(cancelUploadId, 'click', function (ev) {
+			currentXHR.abort();
+			isCancel = false;
 		});
 	}
 	/**
