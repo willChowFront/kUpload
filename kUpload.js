@@ -21,8 +21,8 @@ function kUpload (config) {
 		fileParaName = config.fileParaName ? config.fileParaName : -1,//后台接收文件上传时的参数名
 		uploadAreaId = config.uploadAreaId ? config.uploadAreaId : -1,//包含上传组件的DOM元素id
 		cssUrl = config.cssUrl ? config.cssUrl : -1,//组件样式的url
-		uploadUrl = config.uploadUrl ? config.uploadUrl : -1,//接收上传元素的url
-		selectNums = config.selectNums ? config.selectNums : 200,//单次可选择的元素
+		uploadUrl = config.uploadUrl ? config.uploadUrl : -1,//接收上传文件的url
+		selectNums = config.selectNums ? config.selectNums : 100,//单次可选择的元素
 		maxFileSize = config.maxFileSize ? config.maxFileSize : 1024,//允许上传元素大小的最大值
 		acceptFormat = config.acceptFormat ? config.acceptFormat : [];//允许上传的格式
 	if(!fileParaName){
@@ -38,7 +38,7 @@ function kUpload (config) {
 		return -1;
 	}
 	if(!uploadUrl){
-		console.log('未传入接收上传元素的url！');
+		console.log('未传入接收上传文件的url！');
 		return -1;
 	}
 	/**
@@ -254,13 +254,15 @@ function kUpload (config) {
 	 */
 	function ajaxUpload(url, file, index){
 		var
-			jsonObject,percent,
+			jsonObject, percent, spanEle, spanEleWidth,
 			emEle = document.createElement('em'),
 			formData = new FormData();
 			uploadList = document.getElementById(uploadListId).childNodes,
 			xhr = new XMLHttpRequest();
 		emEle.className = 'k-progress';
 		uploadList[index].appendChild(emEle);
+		spanEle = uploadList[index].childNodes[1];
+		
 		formData.append(fileParaName, file);
 		xhr.open('post',url,true);
 		xhr.send(formData);
@@ -275,8 +277,9 @@ function kUpload (config) {
 		};
 		xhr.upload.onprogress = function(event){
 			if(event.lengthComputable){
-				percent = Math.floor(event.loaded/event.total)*100;
-				emEle.style.width = percent + 'px';	
+				percent = (event.loaded/event.total).toFixed(2);
+				spanEleWidth = document.defaultView.getComputedStyle(spanEle,null).width;
+				emEle.style.width = percent*spanEleWidth + 'px';	
 			}
 		};
 	}
