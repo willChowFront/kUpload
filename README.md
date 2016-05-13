@@ -1,5 +1,5 @@
 # kUpload
-###在页面中引入kCal.js，并调用kCal(config)函数即可,config为参数对象，如下所示
+###在页面中引入kUpload.js，并调用kUpload(config)函数即可,config为参数对象，如下所示
 `
 	kUpload({
 			uploadAreaId : "J_uploadArea",//包含上传组件的DOM元素id,必需项
